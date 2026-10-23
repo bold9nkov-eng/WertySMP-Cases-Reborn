@@ -1,0 +1,15 @@
+name: WertySMP-Cases
+version: 2.1.0
+main: ru.wertysmp.cases.WertyCases
+api-version: '1.21'
+author: WertySMP
+description: Case openings with independent rewards and daily rewards
+commands:
+  wcases:
+    description: Управление кейсами
+    usage: /wcases <give|daily|reload>
+    aliases: [кейсы]
+permissions:
+  wertysmpcases.admin:
+    description: Управление кейсами
+    default: op
