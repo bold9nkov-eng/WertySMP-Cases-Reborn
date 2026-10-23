@@ -1,5 +1,5 @@
 name: WertySMP-Cases
-version: 2.1.0
+version: 2.1.1
 main: ru.wertysmp.cases.WertyCases
 api-version: '1.21'
 author: WertySMP
@@ -8,7 +8,7 @@ commands:
   wcases:
     description: Управление кейсами
     usage: /wcases <give|daily|reload>
-    aliases: [кейсы]
+    aliases: [wcaces, кейсы]
 permissions:
   wertysmpcases.admin:
     description: Управление кейсами
