@@ -1,0 +1,96 @@
+settings:
+  timezone: "Europe/Moscow"
+  minimum-reward:
+    material: EMERALD
+    amount: 1
+    name: "&aКомпенсация за пустое открытие"
+cases:
+  ordinary:
+    material: CHEST
+    name: "&f&lОбычный кейс"
+    lore: ["&7ПКМ по установленному кейсу", "&fНаграды ниже"]
+  epic:
+    material: TRAPPED_CHEST
+    name: "&5&lЭпический кейс"
+    lore: ["&7ПКМ по установленному кейсу", "&dУлучшенные награды"]
+  legendary:
+    material: ENDER_CHEST
+    name: "&5&l✦ Легендарный кейс ✦"
+    lore: ["&7ПКМ по установленному кейсу", "&5Редкие награды"]
+rewards:
+  ordinary:
+    iron:
+      material: IRON_INGOT
+      min: 8
+      max: 24
+      chance: 75
+      display: "&fЖелезные слитки"
+    gold:
+      material: GOLD_INGOT
+      min: 4
+      max: 16
+      chance: 35
+      display: "&6Золотые слитки"
+    diamond:
+      material: DIAMOND
+      min: 1
+      max: 3
+      chance: 8
+      display: "&bАлмазы"
+  epic:
+    diamond:
+      material: DIAMOND
+      min: 3
+      max: 8
+      chance: 65
+      display: "&bАлмазы"
+    netherite:
+      material: NETHERITE_INGOT
+      min: 1
+      max: 2
+      chance: 18
+      display: "&8Незеритовый слиток"
+    emerald:
+      material: EMERALD
+      min: 16
+      max: 48
+      chance: 55
+      display: "&aИзумруды"
+  legendary:
+    netherite:
+      material: NETHERITE_INGOT
+      min: 2
+      max: 6
+      chance: 55
+      display: "&8Незеритовые слитки"
+    diamond_block:
+      material: DIAMOND_BLOCK
+      min: 2
+      max: 8
+      chance: 35
+      display: "&bАлмазные блоки"
+    enchanted_golden_apple:
+      material: ENCHANTED_GOLDEN_APPLE
+      min: 1
+      max: 3
+      chance: 15
+      display: "&6Зачарованное золотое яблоко"
+daily:
+  enabled: true
+  # День 1..15. После дня 15 цикл начинается заново.
+  rewards:
+    "1": {material: BREAD, amount: 16}
+    "2": {material: IRON_INGOT, amount: 12}
+    "3": {material: GOLD_INGOT, amount: 8}
+    "4": {material: EXPERIENCE_BOTTLE, amount: 16}
+    "5": {material: DIAMOND, amount: 2}
+    "6": {material: EMERALD, amount: 16}
+    "7": {material: GOLDEN_APPLE, amount: 2}
+    "8": {material: IRON_BLOCK, amount: 8}
+    "9": {material: DIAMOND, amount: 4}
+    "10": {material: ENCHANTED_BOOK, amount: 1}
+    "11": {material: EMERALD_BLOCK, amount: 8}
+    "12": {material: DIAMOND_BLOCK, amount: 2}
+    "13": {material: NETHERITE_SCRAP, amount: 4}
+    "14": {material: NETHERITE_INGOT, amount: 1}
+    "15": {material: ENCHANTED_GOLDEN_APPLE, amount: 3}
