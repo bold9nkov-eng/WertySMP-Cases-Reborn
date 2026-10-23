@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -29,7 +30,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-public final class WertyCases extends JavaPlugin implements Listener {
+public final class WertyCases extends JavaPlugin implements Listener, TabCompleter {
     private NamespacedKey caseKey;
     private File dataFile;
     private YamlConfiguration data;
@@ -40,6 +41,7 @@ public final class WertyCases extends JavaPlugin implements Listener {
         dataFile = new File(getDataFolder(), "data.yml");
         data = YamlConfiguration.loadConfiguration(dataFile);
         Bukkit.getPluginManager().registerEvents(this, this);
+        Objects.requireNonNull(getCommand("wcases")).setTabCompleter(this);
         getLogger().info("WertySMP-Cases 2.1.0 включён.");
         Bukkit.getScheduler().runTaskTimer(this, this::deliverAllOnline, 20L, 100L);
     }
@@ -49,6 +51,43 @@ public final class WertyCases extends JavaPlugin implements Listener {
     private void saveData() {
         try { if (!getDataFolder().exists()) getDataFolder().mkdirs(); data.save(dataFile); }
         catch (IOException e) { getLogger().severe("Не удалось сохранить data.yml: " + e.getMessage()); }
+    }
+
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> options = new ArrayList<>();
+        if (args.length == 1) {
+            if (sender.hasPermission("wertysmpcases.admin")) {
+                options.add("give");
+                options.add("reload");
+            }
+            if (sender instanceof Player) options.add("daily");
+            return filterOptions(options, args[0]);
+        }
+        if (args[0].equalsIgnoreCase("give") && sender.hasPermission("wertysmpcases.admin")) {
+            if (args.length == 2) {
+                for (Player online : Bukkit.getOnlinePlayers()) options.add(online.getName());
+                return filterOptions(options, args[1]);
+            }
+            if (args.length == 3) {
+                options.addAll(List.of("ordinary", "epic", "legendary"));
+                return filterOptions(options, args[2]);
+            }
+            if (args.length == 4) {
+                options.addAll(List.of("1", "5", "10", "16", "32", "64"));
+                return filterOptions(options, args[3]);
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private List<String> filterOptions(List<String> options, String typed) {
+        String prefix = typed == null ? "" : typed.toLowerCase(Locale.ROOT);
+        return options.stream()
+                .filter(option -> option.toLowerCase(Locale.ROOT).startsWith(prefix))
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .toList();
     }
 
     private String color(String s) { return ChatColor.translateAlternateColorCodes('&', s == null ? "" : s); }
