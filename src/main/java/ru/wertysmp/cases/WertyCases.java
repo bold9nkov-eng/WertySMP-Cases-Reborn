@@ -160,8 +160,70 @@ public final class WertyCases extends JavaPlugin implements Listener, TabComplet
         saveData();
         if (hand.getAmount() <= 1) p.getInventory().setItemInMainHand(null); else hand.setAmount(hand.getAmount() - 1);
         p.updateInventory();
-        deliver(p);
-        p.sendMessage(color("&aКейс открыт! &7Наград: &f" + rewards.size()));
+        startRoulette(p, type, rewards);
+    }
+
+    private static final String ROULETTE_TITLE = "§0✦ VOIDMAIN ROULETTE ✦";
+    private final Set<UUID> rollingPlayers = new HashSet<>();
+
+    private void startRoulette(Player player, String type, List<ItemStack> rewards) {
+        if (!rollingPlayers.add(player.getUniqueId())) return;
+        Inventory roulette = Bukkit.createInventory(null, 27, ROULETTE_TITLE);
+        ItemStack border = named(Material.PURPLE_STAINED_GLASS_PANE, 1, "&5✦", List.of("&8VoidMain"));
+        for (int slot = 0; slot < 27; slot++) {
+            if (slot < 9 || slot > 17 || slot == 9 || slot == 17) roulette.setItem(slot, border);
+        }
+        roulette.setItem(4, named(Material.AMETHYST_SHARD, 1, "&d&lVOIDMAIN", List.of("&7Открытие кейса", "&8Анимация награды...")));
+        roulette.setItem(22, named(Material.CLOCK, 1, "&5Прокрутка", List.of("&7Награда уже определена броском шанса")));
+        player.openInventory(roulette);
+
+        List<ItemStack> pool = new ArrayList<>();
+        ConfigurationSection configured = getConfig().getConfigurationSection("rewards." + type);
+        if (configured != null) {
+            for (String key : configured.getKeys(false)) {
+                ConfigurationSection reward = configured.getConfigurationSection(key);
+                if (reward == null) continue;
+                Material material = Material.matchMaterial(reward.getString("material", "EMERALD"));
+                if (material != null && material.isItem()) {
+                    pool.add(named(material, 1, reward.getString("display", "&f" + material.name()), List.of("&8Возможная награда")));
+                }
+            }
+        }
+        if (pool.isEmpty()) pool.add(named(Material.AMETHYST_SHARD, 1, "&dVoid", List.of("&8Награда")));
+
+        new org.bukkit.scheduler.BukkitRunnable() {
+            int step = 0;
+            final Random random = new Random();
+            @Override public void run() {
+                if (!player.isOnline()) { rollingPlayers.remove(player.getUniqueId()); cancel(); return; }
+                if (step >= 42) {
+                    ItemStack winner = rewards.isEmpty() ? pool.get(random.nextInt(pool.size())) : rewards.get(0).clone();
+                    roulette.setItem(13, winner);
+                    roulette.setItem(12, named(Material.PURPLE_STAINED_GLASS_PANE, 1, "&5✦", List.of()));
+                    roulette.setItem(14, named(Material.PURPLE_STAINED_GLASS_PANE, 1, "&5✦", List.of()));
+                    player.playSound(player.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.9f, 1.15f);
+                    player.getWorld().spawnParticle(org.bukkit.Particle.PORTAL, player.getLocation().add(0, 1, 0), 70, 0.7, 0.8, 0.7, 0.12);
+                    cancel();
+                    Bukkit.getScheduler().runTaskLater(WertyCases.this, () -> {
+                        rollingPlayers.remove(player.getUniqueId());
+                        if (player.isOnline()) {
+                            if (player.getOpenInventory().getTitle().equals(ROULETTE_TITLE)) player.closeInventory();
+                            deliver(player);
+                            player.sendMessage(color("&d&l✦ VOIDMAIN &8» &aКейс открыт! &7Наград: &f" + rewards.size()));
+                        }
+                    }, 24L);
+                    return;
+                }
+                roulette.setItem(13, pool.get(random.nextInt(pool.size())).clone());
+                roulette.setItem(11, pool.get(random.nextInt(pool.size())).clone());
+                roulette.setItem(12, pool.get(random.nextInt(pool.size())).clone());
+                roulette.setItem(14, pool.get(random.nextInt(pool.size())).clone());
+                roulette.setItem(15, pool.get(random.nextInt(pool.size())).clone());
+                float pitch = 0.65f + Math.min(step, 35) * 0.025f;
+                if (step % 2 == 0) player.playSound(player.getLocation(), org.bukkit.Sound.UI_BUTTON_CLICK, 0.45f, pitch);
+                step++;
+            }
+        }.runTaskTimer(this, 1L, 2L + 1L);
     }
 
     private List<ItemStack> rollRewards(String type) {
@@ -282,6 +344,7 @@ public final class WertyCases extends JavaPlugin implements Listener, TabComplet
     }
 
     @EventHandler public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getView().getTitle().equals(ROULETTE_TITLE)) { event.setCancelled(true); return; }
         if (!(event.getView().getTopInventory().getHolder() instanceof DailyHolder holder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player p) || !p.getUniqueId().equals(holder.uuid)) return;
