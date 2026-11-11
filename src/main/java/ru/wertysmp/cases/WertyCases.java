@@ -222,8 +222,9 @@ public final class WertyCases extends JavaPlugin implements Listener, TabComplet
                 float pitch = 0.65f + Math.min(step, 35) * 0.025f;
                 if (step % 2 == 0) player.playSound(player.getLocation(), org.bukkit.Sound.UI_BUTTON_CLICK, 0.45f, pitch);
                 step++;
+                runTaskLater(WertyCases.this, Math.min(10L, 2L + step / 6));
             }
-        }.runTaskTimer(this, 1L, 2L + 1L);
+        }.runTaskLater(this, 1L);
     }
 
     private List<ItemStack> rollRewards(String type) {
@@ -269,18 +270,12 @@ public final class WertyCases extends JavaPlugin implements Listener, TabComplet
         try {
             for (String s : encoded) pending.add(ItemStack.deserializeBytes(Base64.getDecoder().decode(s)));
         } catch (Exception ex) { getLogger().severe("Ошибка чтения ожидающих наград для " + p.getName() + ": " + ex.getMessage()); return; }
-        // Keep rewards queued if there is not enough space for the whole transaction.
-        ItemStack[] simulated = p.getInventory().getStorageContents().clone();
-        for (ItemStack reward : pending) {
-            Map<Integer, ItemStack> leftover = simulateAdd(simulated, reward.clone());
-            if (!leftover.isEmpty()) { p.sendMessage(color("&eИнвентарь заполнен. Освободи место — награды будут выданы автоматически.")); return; }
-        }
-        // Queue is removed before delivery to avoid repeating a reward after a restart.
+        // Clear the durable queue before giving items; overflow is dropped beside the player.
         data.set(path, null); saveData();
         for (ItemStack reward : pending) {
             Map<Integer, ItemStack> leftover = p.getInventory().addItem(reward);
-            if (!leftover.isEmpty()) {
-                for (ItemStack item : leftover.values()) queueReward(p.getUniqueId(), item);
+            for (ItemStack item : leftover.values()) {
+                p.getWorld().dropItemNaturally(p.getLocation(), item);
             }
         }
         p.updateInventory();
