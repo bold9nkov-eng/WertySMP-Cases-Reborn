@@ -191,11 +191,11 @@ public final class WertyCases extends JavaPlugin implements Listener, TabComplet
         }
         if (pool.isEmpty()) pool.add(named(Material.AMETHYST_SHARD, 1, "&dVoid", List.of("&8Награда")));
 
-        new org.bukkit.scheduler.BukkitRunnable() {
+        Runnable animation = new Runnable() {
             int step = 0;
             final Random random = new Random();
             @Override public void run() {
-                if (!player.isOnline()) { rollingPlayers.remove(player.getUniqueId()); cancel(); return; }
+                if (!player.isOnline()) { rollingPlayers.remove(player.getUniqueId()); return; }
                 if (step >= 42) {
                     ItemStack winner = rewards.isEmpty() ? pool.get(random.nextInt(pool.size())) : rewards.get(0).clone();
                     roulette.setItem(13, winner);
@@ -203,7 +203,6 @@ public final class WertyCases extends JavaPlugin implements Listener, TabComplet
                     roulette.setItem(14, named(Material.PURPLE_STAINED_GLASS_PANE, 1, "&5✦", List.of()));
                     player.playSound(player.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.9f, 1.15f);
                     player.getWorld().spawnParticle(org.bukkit.Particle.PORTAL, player.getLocation().add(0, 1, 0), 70, 0.7, 0.8, 0.7, 0.12);
-                    cancel();
                     Bukkit.getScheduler().runTaskLater(WertyCases.this, () -> {
                         rollingPlayers.remove(player.getUniqueId());
                         if (player.isOnline()) {
@@ -222,9 +221,10 @@ public final class WertyCases extends JavaPlugin implements Listener, TabComplet
                 float pitch = 0.65f + Math.min(step, 35) * 0.025f;
                 if (step % 2 == 0) player.playSound(player.getLocation(), org.bukkit.Sound.UI_BUTTON_CLICK, 0.45f, pitch);
                 step++;
-                runTaskLater(WertyCases.this, Math.min(10L, 2L + step / 6));
+                Bukkit.getScheduler().runTaskLater(WertyCases.this, this, Math.min(10L, 2L + step / 6));
             }
-        }.runTaskLater(this, 1L);
+        };
+        Bukkit.getScheduler().runTaskLater(this, animation, 1L);
     }
 
     private List<ItemStack> rollRewards(String type) {
