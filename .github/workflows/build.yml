@@ -1,7 +1,7 @@
-name: Build plugin
+name: Build VoidCases ULTRA
 on:
   push:
-    branches: [ main ]
+    branches: [ voidcases-3.1-ultra ]
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,7 +22,7 @@ jobs:
       - name: Upload plugin JAR
         uses: actions/upload-artifact@v4
         with:
-          name: WertySMP-Cases-JAR
-          path: target/WertySMP-Cases-2.1.1.jar
+          name: VoidCases-3.1.0-ULTRA
+          path: target/VoidCases-3.1.0-ULTRA.jar
           if-no-files-found: error
           retention-days: 14
