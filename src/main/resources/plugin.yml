@@ -1,14 +1,14 @@
-name: WertySMP-Cases
-version: 2.1.1
+name: VoidCases
+version: 3.1.0
 main: ru.wertysmp.cases.WertyCases
 api-version: '1.21'
-author: WertySMP
-description: Case openings with independent rewards and daily rewards
+author: VoidMain
+description: VoidMain cases with animated roulette and reward delivery
 commands:
   wcases:
-    description: Управление кейсами
+    description: Управление кейсами VoidMain
     usage: /wcases <give|daily|reload>
-    aliases: [wcaces, кейсы]
+    aliases: [voidcases, wcaces, кейсы]
 permissions:
   wertysmpcases.admin:
     description: Управление кейсами
